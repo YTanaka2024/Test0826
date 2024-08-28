@@ -14,7 +14,5 @@ public class BallController : MovableObject
     void Update()
     {
         if (isPaused) { return; }
-
-        transform.position += Vector3.right * 0.1f * Time.deltaTime;
     }
 }

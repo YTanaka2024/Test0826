@@ -6,26 +6,25 @@ public abstract class MovableObject : MonoBehaviour
     protected bool isPaused = false;
 
     protected virtual void Awake()
-    {
+        {
         rb = GetComponent<Rigidbody>();
     }
 
     public virtual void PauseMovement()
     {
-        if (rb != null)
-        {
-            rb.velocity = Vector3.zero;
-            rb.isKinematic = true;
-        }
+        //if (rb != null)
+        //{
+        //    rb.isKinematic = true;
+        //}
         isPaused = true;
     }
 
     public virtual void ResumeMovement()
     {
-        if (rb != null)
-        {
-            rb.isKinematic = false;
-        }
+        //if (rb != null)
+        //{
+        //    rb.isKinematic = false;
+        //}
         isPaused = false;
     }
 }

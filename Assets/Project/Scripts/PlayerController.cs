@@ -4,32 +4,38 @@ using UnityEngine;
 
 public class PlayerController : MovableObject
 {
-    public Animator Animator { get; private set; }
+    private Animator animator;
     [SerializeField] private Transform kickingFootToe;
     [SerializeField] private LayerMask ballLayer;
+    [SerializeField] private GameObject kickControl;
+
+    private bool isKicked = false;
 
     protected override void Awake()
     {
         base.Awake();
+
+        animator = GetComponentInChildren<Animator>();
     }
 
     public override void PauseMovement()
     {
         base.PauseMovement();
 
-        Animator.speed = 0f;
+        if (animator != null)
+        {
+            animator.speed = 0f;
+        }
     }
 
     public override void ResumeMovement()
     {
         base.ResumeMovement();
 
-        Animator.speed = 1f;
-    }
-
-    private void Start()
-    {
-        Animator = GetComponentInChildren<Animator>();
+        if (animator != null)
+        {
+            animator.speed = 1f;
+        }
     }
 
     private void Update()
@@ -43,12 +49,27 @@ public class PlayerController : MovableObject
 
         if (Input.GetMouseButtonDown(0))
         {
-            Animator.SetTrigger("kick");
+            animator.SetTrigger("kick");
         }
 
-        if (Physics.CheckSphere(kickingFootToe.position, 0.1f, ballLayer))
+        if (isKicked == false && Physics.CheckSphere(kickingFootToe.position, 0.1f, ballLayer))
         {
-            GameManager.Instance.EnterKickMode();
+            OnPlayerContactBall();
+            isKicked = true;
+        }
+    }
+
+    public void OnPlayerContactBall()
+    {
+        GameManager.Instance.EnterKickMode();
+        ShowKickUI();
+    }
+
+    private void ShowKickUI()
+    {
+        if (kickControl != null)
+        {
+            kickControl.SetActive(true);
         }
     }
 }
