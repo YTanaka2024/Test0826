@@ -1,18 +1,26 @@
+//using Unity.Properties;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class KickControl : MonoBehaviour
 {
-    [SerializeField] private GameObject kickUI;
-    [SerializeField] private RectTransform arrow; // 矢印UIをアタッチ
-    [SerializeField] private Transform ball; // ボールのTransform
+    [Header("BallUI")]
+    [SerializeField] private GameObject ballUI;                 // ボールと背景のUI
+    [SerializeField] private float baseRadius = 400f;           // 基準解像度（1920px）の際のボールの半径
+    [SerializeField] private RectTransform ballRectTransform;   // ボールの画像の位置
+
+    [Header("ArrowUI")]
+    [SerializeField] private GameObject arrowUI;
+
+    // private variables
     private bool isDragging = false;
     private Vector2 startTouchPosition;
     private MouseInputManager mouseInputManager;
+    private float theta;
 
     private void OnEnable()
     {
-        isDragging = false;
+        isDragging = true;
     }
 
     private void Start()
@@ -20,59 +28,69 @@ public class KickControl : MonoBehaviour
         mouseInputManager = GetComponent<MouseInputManager>();
     }
 
-    private bool IsMouseInsideBall(Vector2 normalizedMousePos)
-    {
-        // ボールの半径を考慮して、範囲内かどうかを判定
-        float ballRadius = 256f / Screen.width; // ボールの半径を計算
-        return normalizedMousePos.sqrMagnitude <= ballRadius * ballRadius;
-    }
-
     void Update()
     {
+        Vector2 mousePos = Input.mousePosition;
+
         // タッチ開始の検出
-        if (isDragging == false && Input.GetMouseButtonDown(0))
+        if (isDragging == false &&
+            Input.GetMouseButtonDown(0))
         {
-            startTouchPosition = Input.mousePosition;
-            Debug.Log(startTouchPosition);
-
-            Vector2 normalizedMousePos = mouseInputManager.GetNormalizedMousePosition();
-
-            if (IsMouseInsideBall(normalizedMousePos))
+            if (IsMouseInsideBall(mousePos, GetScaledRadius()))
             {
-                kickUI.SetActive(false); // キックUIを非表示にする
+                startTouchPosition = Input.mousePosition;
+                Debug.Log(mousePos);
+                ballUI.SetActive(false); // キックUIを非表示にする
+                arrowUI.SetActive(true);
                 isDragging = true;
             }
         }
 
-        // ドラッグ中の処理
         if (isDragging)
         {
             Vector2 currentTouchPosition = Input.mousePosition;
             Vector2 dragVector = currentTouchPosition - startTouchPosition;
-            UpdateArrow(dragVector); // 矢印の更新
+            UpdateArrow(dragVector);
         }
 
-        // ドラッグ終了の検出
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
             isDragging = false;
-            arrow.gameObject.SetActive(false); // 矢印を非表示
-            // ボールを蹴る処理を追加する
+            arrowUI.SetActive(false);
         }
     }
 
     private void UpdateArrow(Vector2 dragVector)
     {
-        if (!arrow.gameObject.activeSelf)
-        {
-            arrow.gameObject.SetActive(true); // 矢印を表示
-        }
+        //if (!arrowRectTransform.gameObject.activeSelf)
+        //{
+        //    arrowRectTransform.gameObject.SetActive(true); // 矢印を表示
+        //}
 
-        // 矢印の回転とスケールを更新
-        float angle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
-        arrow.rotation = Quaternion.Euler(0, 0, angle);
+        //// 矢印の回転とスケールを更新
+        //float angle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
+        //arrowRectTransform.rotation = Quaternion.Euler(0, 0, angle);
 
-        float magnitude = dragVector.magnitude;
-        arrow.sizeDelta = new Vector2(magnitude, arrow.sizeDelta.y); // 矢印の長さを更新
+        //float magnitude = dragVector.magnitude;
+        //arrowRectTransform.sizeDelta = new Vector2(magnitude, arrowRectTransform.sizeDelta.y); // 矢印の長さを更新
+    }
+
+    private float GetScaledRadius()
+    {
+        // 基準解像度(1920)に対する現在の画面幅の比率で半径をスケーリング
+        float scaleFactor = (float)Screen.width / 1920f;
+        return baseRadius * scaleFactor;
+    }
+
+    private bool IsMouseInsideBall(Vector2 mousePos, float radius)
+    {
+        // ローカルポイントの位置に基づきボール中心を算出 (これを基準にする)
+        Vector2 ballCenter = ballRectTransform.position;
+
+        // マウス位置とボール中心の距離を計算
+        float distance = Vector2.Distance(mousePos, ballCenter);
+
+        // 半径内かどうかを判定
+        return distance <= radius;
     }
 }
