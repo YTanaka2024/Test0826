@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class KickControl : MonoBehaviour
 {
     [Header("BallUI")]
-    [SerializeField] private GameObject ballUI;                 // ボールと背景のUI
+    [SerializeField] private BallUI ballUI;                 // ボールと背景のUI
     [SerializeField] private float baseRadius = 400f;           // 基準解像度（1920px）の際のボールの半径
     [SerializeField] private RectTransform ballRectTransform;   // ボールの画像の位置
 
@@ -20,7 +20,7 @@ public class KickControl : MonoBehaviour
 
     private void OnEnable()
     {
-        isDragging = true;
+        isDragging = false;
     }
 
     private void Start()
@@ -40,7 +40,7 @@ public class KickControl : MonoBehaviour
             {
                 startTouchPosition = Input.mousePosition;
                 Debug.Log(mousePos);
-                ballUI.SetActive(false); // キックUIを非表示にする
+                ballUI.gameObject.SetActive(false); // キックUIを非表示にする
                 arrowUI.SetActive(true);
                 isDragging = true;
             }
@@ -56,6 +56,8 @@ public class KickControl : MonoBehaviour
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
             isDragging = false;
+            ballUI.gameObject.SetActive(true);
+            ballUI.Initialize();
             arrowUI.SetActive(false);
         }
     }

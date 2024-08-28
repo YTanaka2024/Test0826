@@ -12,6 +12,14 @@ public class BallUI : MonoBehaviour
     {
         theta = 0f;
         ballRectTransform.localScale = Vector3.zero;
+        enabled = true;
+    }
+
+    public void Initialize()
+    {
+        theta = 0f;
+        ballRectTransform.localScale = Vector3.zero;
+        enabled = true;
     }
 
     private void Update()
@@ -24,7 +32,7 @@ public class BallUI : MonoBehaviour
         // アニメーションが完了したら、Updateを停止する
         if (theta >= 1f)
         {
-            this.enabled = false;
+            enabled = false;
         }
     }
 }
