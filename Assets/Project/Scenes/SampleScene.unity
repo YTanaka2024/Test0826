@@ -606,7 +606,7 @@ MonoBehaviour:
   ballUI: {fileID: 866185259}
   baseRadius: 380
   ballRectTransform: {fileID: 869521798}
-  arrowRectTransform: {fileID: 1263635791}
+  arrowUI: {fileID: 769509216}
 --- !u!4 &595814232
 Transform:
   m_ObjectHideFlags: 0

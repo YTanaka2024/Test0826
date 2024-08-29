@@ -40,12 +40,13 @@ public class KickControl : MonoBehaviour
             {
                 startTouchPosition = Input.mousePosition;
                 Debug.Log(mousePos);
-                ballUI.SetActive(false); // キックUIを非表示にする
-                arrowUI.SetActive(true);
-                isDragging = true;
+                ballUI.SetActive(false);    // キックUIを非表示にする
+                arrowUI.SetActive(true);    // 矢印UIを表示する
+                isDragging = true;          // ひっぱり中である
             }
         }
 
+        // ひっぱり中の処理
         if (isDragging)
         {
             Vector2 currentTouchPosition = Input.mousePosition;
@@ -53,6 +54,7 @@ public class KickControl : MonoBehaviour
             UpdateArrow(dragVector);
         }
 
+        // 離した瞬間の処理
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
             isDragging = false;
