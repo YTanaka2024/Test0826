@@ -1,22 +1,30 @@
-//using Unity.Properties;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class KickControl : MonoBehaviour
 {
     [Header("BallUI")]
-    [SerializeField] private BallUI ballUI;                 // ボールと背景のUI
-    [SerializeField] private float baseRadius = 400f;           // 基準解像度（1920px）の際のボールの半径
-    [SerializeField] private RectTransform ballRectTransform;   // ボールの画像の位置
+    [SerializeField] private GameObject ballUI;
+    [SerializeField] private float baseRadius = 400f;
+    [SerializeField] private RectTransform ballRectTransform;
 
     [Header("ArrowUI")]
     [SerializeField] private GameObject arrowUI;
 
-    // private variables
+    [Header("Ball3D")]
+    [SerializeField] private Transform ball3D;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LineRenderer trajectoryLineRenderer;
+    [SerializeField] private LineRenderer ringLineRenderer;
+    [SerializeField] private float maxDragDistance = 100f;
+    [SerializeField] private float baseMaxDragDistance = 100f;
+    [SerializeField] private float dragScaleFactor = 0.01f;
+    [SerializeField] private TextMeshProUGUI powerText;
+
     private bool isDragging = false;
     private Vector2 startTouchPosition;
     private MouseInputManager mouseInputManager;
-    private float theta;
 
     private void OnEnable()
     {
@@ -26,73 +34,207 @@ public class KickControl : MonoBehaviour
     private void Start()
     {
         mouseInputManager = GetComponent<MouseInputManager>();
+        maxDragDistance = CalculateMaxDragDistance();
     }
 
     void Update()
     {
         Vector2 mousePos = Input.mousePosition;
 
-        // タッチ開始の検出
-        if (isDragging == false &&
-            Input.GetMouseButtonDown(0))
+        if (!isDragging && Input.GetMouseButtonDown(0))
         {
-            if (IsMouseInsideBall(mousePos, GetScaledRadius()))
+            if (IsMouseInsideBall(mousePos))
             {
-                startTouchPosition = Input.mousePosition;
-                Debug.Log(mousePos);
-                ballUI.gameObject.SetActive(false); // キックUIを非表示にする
-                arrowUI.SetActive(true);
-                isDragging = true;
+                StartDrag(mousePos);
             }
         }
 
         if (isDragging)
         {
-            Vector2 currentTouchPosition = Input.mousePosition;
-            Vector2 dragVector = currentTouchPosition - startTouchPosition;
-            UpdateArrow(dragVector);
+            HandleDragging(Input.mousePosition);
         }
 
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
-            isDragging = false;
-            ballUI.gameObject.SetActive(true);
-            ballUI.Initialize();
-            arrowUI.SetActive(false);
+            EndDrag();
         }
     }
 
-    private void UpdateArrow(Vector2 dragVector)
+    private void StartDrag(Vector2 mousePos)
     {
-        //if (!arrowRectTransform.gameObject.activeSelf)
-        //{
-        //    arrowRectTransform.gameObject.SetActive(true); // 矢印を表示
-        //}
+        startTouchPosition = mousePos;
+        ballUI.SetActive(false);
+        arrowUI.SetActive(true);
+        trajectoryLineRenderer.enabled = true;
+        ringLineRenderer.enabled = true;
+        isDragging = true;
+        Cursor.visible = false;
+    }
 
-        //// 矢印の回転とスケールを更新
-        //float angle = Mathf.Atan2(dragVector.y, dragVector.x) * Mathf.Rad2Deg;
-        //arrowRectTransform.rotation = Quaternion.Euler(0, 0, angle);
+    private void HandleDragging(Vector2 currentTouchPosition)
+    {
+        Vector2 dragVector = GetDragVector(currentTouchPosition);
+        DrawTrajectoryAndRing(dragVector);
+        UpdatePowerText(dragVector);
+        UpdateArrow(Vector2.zero, dragVector / maxDragDistance);
+    }
 
-        //float magnitude = dragVector.magnitude;
-        //arrowRectTransform.sizeDelta = new Vector2(magnitude, arrowRectTransform.sizeDelta.y); // 矢印の長さを更新
+    private void EndDrag()
+    {
+        isDragging = false;
+        arrowUI.SetActive(false);
+        trajectoryLineRenderer.positionCount = 0;
+        trajectoryLineRenderer.enabled = false;
+        ringLineRenderer.positionCount = 0;
+        ringLineRenderer.enabled = false;
+        Cursor.visible = true;
+    }
+
+    private Vector2 GetDragVector(Vector2 currentTouchPosition)
+    {
+        Vector2 dragVector = currentTouchPosition - startTouchPosition;
+        float dragDistance = Mathf.Min(dragVector.magnitude, maxDragDistance);
+        return dragVector.normalized * dragDistance;
+    }
+
+    private void DrawTrajectoryAndRing(Vector2 dragVector)
+    {
+        Vector3 groundStartPoint = GetGroundPointBelowBall();
+        groundStartPoint += Vector3.up * 0.05f;
+        Vector3 groundEndPoint = ScreenToWorldPointOnGround(groundStartPoint, dragVector * dragScaleFactor);
+        groundEndPoint += Vector3.up * 0.05f;
+
+        DrawDashedLine(groundStartPoint, groundEndPoint);
+        DrawRing(groundStartPoint, groundEndPoint);
+    }
+
+    private void UpdatePowerText(Vector2 dragVector)
+    {
+        float powerRate = Mathf.Min(dragVector.magnitude / maxDragDistance, 1.0f);
+        powerText.text = $"{powerRate * 100f:F0}%";
+        Vector3 ringCenter = GetRingCenter(dragVector);
+        powerText.transform.position = Camera.main.WorldToScreenPoint(ringCenter + Vector3.up * 0.32f);
+    }
+
+    private void DrawRing(Vector3 groundStartPoint, Vector3 groundEndPoint)
+    {
+        float length = (groundEndPoint - groundStartPoint).magnitude;
+        float radius = 0.2f;
+        Vector3 ringCenter = groundStartPoint + (groundEndPoint - groundStartPoint).normalized * (length + radius);
+        ringCenter += Vector3.up * 0.05f;
+
+        ringLineRenderer.loop = true;
+        ringLineRenderer.positionCount = 101;
+        float angleStep = 360f / 100;
+
+        for (int i = 0; i <= 100; i++)
+        {
+            float angle = i * angleStep * Mathf.Deg2Rad;
+            float x = Mathf.Cos(angle) * radius;
+            float z = Mathf.Sin(angle) * radius;
+            Vector3 position = new Vector3(ringCenter.x + x, ringCenter.y, ringCenter.z + z);
+            ringLineRenderer.SetPosition(i, position);
+        }
+    }
+
+    private Vector3 GetGroundPointBelowBall()
+    {
+        Ray ray = new Ray(ball3D.position, Vector3.down);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, groundLayer))
+        {
+            return hit.point;
+        }
+        return ball3D.position;
+    }
+
+    private Vector3 ScreenToWorldPointOnGround(Vector3 groundStartPoint, Vector2 dragVector)
+    {
+        return new Vector3(groundStartPoint.x + dragVector.x,
+            groundStartPoint.y,
+            groundStartPoint.z + dragVector.y);
+    }
+
+    private void DrawDashedLine(Vector3 start, Vector3 end)
+    {
+        trajectoryLineRenderer.positionCount = 2;
+        trajectoryLineRenderer.SetPosition(0, start);
+        trajectoryLineRenderer.SetPosition(1, end);
+    }
+
+    private Vector3 CalculateInitialVelocity(Vector2 dragVector)
+    {
+        float powerMultiplier = 20f;
+        Vector3 direction = new Vector3(-dragVector.x, 0.3f, -dragVector.y).normalized;
+        return direction * powerMultiplier * dragVector.magnitude;
+    }
+
+    private void UpdateArrow(Vector2 kickPoint, Vector2 dragVector)
+    {
+        Vector3 initialPosition = ball3D.position;
+        Vector3 initialVelocity = CalculateInitialVelocity(dragVector);
+
+        int steps = 50;
+        float timeStep = 0.05f;
+        trajectoryLineRenderer.positionCount = steps;
+
+        float bounceCoefficient = 0.8f;
+        float ballRadius = 0.15f;
+        Vector3 velocity = initialVelocity;
+
+        for (int i = 0; i < steps; i++)
+        {
+            float t = i * timeStep;
+            Vector3 position = CalculatePosition(initialPosition, velocity, t);
+
+            if (position.y <= ballRadius && velocity.y < 0)
+            {
+                velocity.y = -velocity.y * bounceCoefficient;
+                velocity.x *= bounceCoefficient;
+                velocity.z *= bounceCoefficient;
+                position.y = ballRadius;
+                position += velocity * timeStep * 0.5f;
+            }
+
+            trajectoryLineRenderer.SetPosition(i, position);
+        }
+    }
+
+    private Vector3 CalculatePosition(Vector3 initialPosition, Vector3 velocity, float time)
+    {
+        Vector3 gravity = Physics.gravity;
+        float timeStep = 0.05f;
+
+        return initialPosition + velocity * time + 0.5f * gravity * time * time;
+    }
+
+    private bool IsMouseInsideBall(Vector2 mousePos)
+    {
+        Vector2 ballCenter = ballRectTransform.position;
+        float distance = Vector2.Distance(mousePos, ballCenter);
+        return distance <= GetScaledRadius();
     }
 
     private float GetScaledRadius()
     {
-        // 基準解像度(1920)に対する現在の画面幅の比率で半径をスケーリング
         float scaleFactor = (float)Screen.width / 1920f;
         return baseRadius * scaleFactor;
     }
 
-    private bool IsMouseInsideBall(Vector2 mousePos, float radius)
+    private float CalculateMaxDragDistance()
     {
-        // ローカルポイントの位置に基づきボール中心を算出 (これを基準にする)
-        Vector2 ballCenter = ballRectTransform.position;
+        float screenScaleFactor = (float)Screen.width / 1920f;
+        return baseMaxDragDistance * screenScaleFactor;
+    }
 
-        // マウス位置とボール中心の距離を計算
-        float distance = Vector2.Distance(mousePos, ballCenter);
+    private Vector3 GetRingCenter(Vector2 dragVector)
+    {
+        Vector3 groundStartPoint = GetGroundPointBelowBall();
+        groundStartPoint += Vector3.up * 0.05f;
+        Vector3 groundEndPoint = ScreenToWorldPointOnGround(groundStartPoint, dragVector * dragScaleFactor);
+        groundEndPoint += Vector3.up * 0.05f;
 
-        // 半径内かどうかを判定
-        return distance <= radius;
+        float length = (groundEndPoint - groundStartPoint).magnitude;
+        float radius = 0.2f;
+        return groundStartPoint + (groundEndPoint - groundStartPoint).normalized * (length + radius);
     }
 }
