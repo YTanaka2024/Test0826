@@ -672,9 +672,9 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
-  lineRenderer: {fileID: 433109475}
-  ringLineRenderer: {fileID: 1746071513}
   trajectoryLineRenderer: {fileID: 1176961338}
+  ringLineRenderer: {fileID: 1746071513}
+  maxDragDistance: 0
   baseMaxDragDistance: 200
   dragScaleFactor: 0.004
   powerText: {fileID: 1408278135}
