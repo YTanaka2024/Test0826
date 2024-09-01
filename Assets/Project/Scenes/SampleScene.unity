@@ -744,7 +744,7 @@ MonoBehaviour:
   ball3D: {fileID: 1965379886}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   lineRenderer: {fileID: 433109475}
   ringLineRenderer: {fileID: 1746071513}
   trajectoryLineRenderer: {fileID: 1176961338}
