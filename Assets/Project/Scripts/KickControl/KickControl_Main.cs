@@ -25,6 +25,7 @@ public partial class KickControl : MonoBehaviour
     private float maxDragDistance;
     private bool isDragging = false;
     private Vector2 startTouchPosition;
+    private BallTrajectoryCalculator trajectoryCalculator;
 
     private void OnEnable()
     {
@@ -34,6 +35,7 @@ public partial class KickControl : MonoBehaviour
     private void Start()
     {
         maxDragDistance = CalculateMaxDragDistance();
+        trajectoryCalculator = FindObjectOfType<BallTrajectoryCalculator>();
     }
 
     private void Update()

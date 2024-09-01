@@ -65,6 +65,17 @@ public partial class KickControl : MonoBehaviour
         trajectoryLineRenderer.enabled = false;
 
         Cursor.visible = true;
+
+        BallMover ballMover = ball3D.GetComponent<BallMover>();
+        if (ballMover != null)
+        {
+            Vector2 dragVector = CalculateDragVector();
+            Vector2 kickPoint = CalculateKickPoint(dragVector);
+            Vector3 initialVelocity = trajectoryCalculator.CalculateInitialVelocity(kickPoint, dragVector / maxDragDistance);
+            ballMover.StartMoving(ball3D.position, initialVelocity, kickPoint);
+        }
+
+        GameManager.Instance.ExitKickMode();
     }
 
     private float CalculateMaxDragDistance()

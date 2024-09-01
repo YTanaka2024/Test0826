@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MovableObject
 {
@@ -42,7 +43,7 @@ public class PlayerController : MovableObject
     {
         if (Input.GetMouseButtonDown(1))
         {
-            GameManager.Instance.ExitKickMode();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         if (isPaused) { return; }
