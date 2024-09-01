@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
             player.PauseMovement();
         }
 
-        foreach (BallController ball in FindObjectsOfType<BallController>())
+        foreach (BallMover ball in FindObjectsOfType<BallMover>())
         {
             ball.PauseMovement();
         }
@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
             player.ResumeMovement();
         }
 
-        foreach (BallController ball in FindObjectsOfType<BallController>())
+        foreach (BallMover ball in FindObjectsOfType<BallMover>())
         {
             ball.ResumeMovement();
         }

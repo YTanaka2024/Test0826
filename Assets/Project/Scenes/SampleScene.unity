@@ -643,8 +643,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 595814232}
-  - component: {fileID: 595814231}
   - component: {fileID: 595814233}
+  - component: {fileID: 595814234}
   m_Layer: 0
   m_Name: KickControl
   m_TagString: Untagged
@@ -652,32 +652,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &595814231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 595814230}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95d764875c5c307459a523da3c2ce298, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ballUI: {fileID: 866185259}
-  baseRadius: 400
-  ballRectTransform: {fileID: 869521798}
-  arrowUI: {fileID: 769509216}
-  ball3D: {fileID: 1965379886}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  lineRenderer: {fileID: 433109475}
-  ringLineRenderer: {fileID: 1746071513}
-  trajectoryLineRenderer: {fileID: 1176961338}
-  baseMaxDragDistance: 200
-  dragScaleFactor: 0.004
-  powerText: {fileID: 1408278135}
 --- !u!4 &595814232
 Transform:
   m_ObjectHideFlags: 0
@@ -707,6 +681,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08868b386ff01a4419191911aca22693, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &595814234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595814230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 418736c9d2ad7f048ba7023584805a7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ballUI: {fileID: 866185259}
+  baseRadius: 400
+  ballRectTransform: {fileID: 869521798}
+  arrowUI: {fileID: 769509216}
+  ball3D: {fileID: 1965379886}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  lineRenderer: {fileID: 433109475}
+  ringLineRenderer: {fileID: 1746071513}
+  trajectoryLineRenderer: {fileID: 1176961338}
+  baseMaxDragDistance: 100
+  dragScaleFactor: 0.01
+  powerText: {fileID: 1408278135}
 --- !u!1 &769509216
 GameObject:
   m_ObjectHideFlags: 0
@@ -1576,7 +1576,6 @@ GameObject:
   - component: {fileID: 1965379885}
   - component: {fileID: 1965379884}
   - component: {fileID: 1965379883}
-  - component: {fileID: 1965379887}
   - component: {fileID: 1965379888}
   m_Layer: 6
   m_Name: Ball
@@ -1671,18 +1670,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1965379887
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1965379882}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0ee5daf874c44449907c8c8d006e713, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &1965379888
 Rigidbody:
   m_ObjectHideFlags: 0
