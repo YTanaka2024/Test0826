@@ -665,16 +665,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballUI: {fileID: 866185259}
-  baseRadius: 380
+  baseRadius: 400
   ballRectTransform: {fileID: 869521798}
   arrowUI: {fileID: 769509216}
   ball3D: {fileID: 1965379886}
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
-  trajectoryLineRenderer: {fileID: 1176961338}
+  lineRenderer: {fileID: 433109475}
   ringLineRenderer: {fileID: 1746071513}
-  maxDragDistance: 0
+  trajectoryLineRenderer: {fileID: 1176961338}
   baseMaxDragDistance: 200
   dragScaleFactor: 0.004
   powerText: {fileID: 1408278135}
@@ -918,7 +918,7 @@ GameObject:
   - component: {fileID: 869521800}
   - component: {fileID: 869521799}
   m_Layer: 5
-  m_Name: Image
+  m_Name: BallImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
